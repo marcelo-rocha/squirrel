@@ -187,6 +187,10 @@ func (b SelectBuilder) RunWith(runner BaseRunner) SelectBuilder {
 	return setRunWith(b, runner).(SelectBuilder)
 }
 
+func (b SelectBuilder) RunWithPgx(runner Pgx) SelectBuilder {
+	return setRunWith(b, runner).(SelectBuilder)
+}
+
 // Exec builds and Execs the query with the Runner set by RunWith.
 func (b SelectBuilder) Exec() (sql.Result, error) {
 	data := builder.GetStruct(b).(selectData)
@@ -194,9 +198,15 @@ func (b SelectBuilder) Exec() (sql.Result, error) {
 }
 
 // Query builds and Querys the query with the Runner set by RunWith.
-func (b SelectBuilder) Query() (*sql.Rows, error) {
+func (b SelectBuilder) Query() (Rows, error) {
 	data := builder.GetStruct(b).(selectData)
-	return data.Query()
+
+	rows, err := data.Query()
+	if err != nil {
+		return nil, err
+	}
+
+	return &StdRowsWrapper{rows}, nil
 }
 
 // QueryRow builds and QueryRows the query with the Runner set by RunWith.
@@ -272,7 +282,8 @@ func (b SelectBuilder) RemoveColumns() SelectBuilder {
 // Column adds a result column to the query.
 // Unlike Columns, Column accepts args which will be bound to placeholders in
 // the columns string, for example:
-//   Column("IF(col IN ("+squirrel.Placeholders(3)+"), 1, 0) as col", 1, 2, 3)
+//
+//	Column("IF(col IN ("+squirrel.Placeholders(3)+"), 1, 0) as col", 1, 2, 3)
 func (b SelectBuilder) Column(column interface{}, args ...interface{}) SelectBuilder {
 	return builder.Append(b, "Columns", newPart(column, args...)).(SelectBuilder)
 }
