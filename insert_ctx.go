@@ -1,3 +1,4 @@
+//go:build go1.8
 // +build go1.8
 
 package squirrel
@@ -20,7 +21,7 @@ func (d *insertData) ExecContext(ctx context.Context) (sql.Result, error) {
 	return ExecContextWith(ctx, ctxRunner, d)
 }
 
-func (d *insertData) QueryContext(ctx context.Context) (*sql.Rows, error) {
+func (d *insertData) QueryContext(ctx context.Context) (Rows, error) {
 	if d.RunWith == nil {
 		return nil, RunnerNotSet
 	}
@@ -52,7 +53,7 @@ func (b InsertBuilder) ExecContext(ctx context.Context) (sql.Result, error) {
 }
 
 // QueryContext builds and QueryContexts the query with the Runner set by RunWith.
-func (b InsertBuilder) QueryContext(ctx context.Context) (*sql.Rows, error) {
+func (b InsertBuilder) QueryContext(ctx context.Context) (Rows, error) {
 	data := builder.GetStruct(b).(insertData)
 	return data.QueryContext(ctx)
 }

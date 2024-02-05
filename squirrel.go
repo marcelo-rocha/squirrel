@@ -82,14 +82,17 @@ func (r *stdsqlRunner) QueryRow(query string, args ...interface{}) RowScanner {
 	return r.StdSql.QueryRow(query, args...)
 }
 
-func setRunWith(b interface{}, runner BaseRunner) interface{} {
+func setRunWith(b interface{}, runner any) interface{} {
 	switch r := runner.(type) {
 	case StdSqlCtx:
-		runner = WrapStdSqlCtx(r)
+		return builder.Set(b, "RunWith", WrapStdSqlCtx(r))
 	case StdSql:
-		runner = WrapStdSql(r)
+		return builder.Set(b, "RunWith", WrapStdSql(r))
+	case Pgx:
+		return builder.Set(b, "RunWith", WrapPgx(r))
+	default:
+		return builder.Set(b, "RunWith", runner)
 	}
-	return builder.Set(b, "RunWith", runner)
 }
 
 // RunnerNotSet is returned by methods that need a Runner if it isn't set.

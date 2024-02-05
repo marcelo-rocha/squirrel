@@ -1,5 +1,3 @@
-// +build go1.8
-
 package squirrel
 
 import (
@@ -22,7 +20,7 @@ func (s *DBStub) ExecContext(ctx context.Context, query string, args ...interfac
 	return nil, nil
 }
 
-func (s *DBStub) QueryContext(ctx context.Context, query string, args ...interface{}) (*sql.Rows, error) {
+func (s *DBStub) QueryContext(ctx context.Context, query string, args ...interface{}) (Rows, error) {
 	s.LastQuerySql = query
 	s.LastQueryArgs = args
 	return nil, nil
